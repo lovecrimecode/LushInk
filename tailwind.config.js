@@ -11,6 +11,11 @@ export default {
 
     theme: {
         extend: {
+            colors: {
+                darkbg: "#0F0F0F",
+                wine: "#8B1E3F",
+                wineLight: "#B23A55"
+            },
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },

@@ -2,12 +2,12 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\Api\BookApiController;
 use App\Models\Book;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+ Route::get('/', [BookApiController::class, 'index']);
+    Route::get('/books/{book}', [BookApiController::class, 'show']);
 
 Route::get('/dashboard', function () {
     return view('dashboard');
