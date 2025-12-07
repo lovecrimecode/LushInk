@@ -2,39 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Book;
+use Illuminate\Http\Request;
 
 class LibraryController extends Controller
 {
-    // Mostrar solo libros comprados
-    public function index()
+    public function index(Request $request)
     {
-        return auth()->user()->purchasedBooks()->get();
+        return $request->user()->purchasedBooks()->get();
     }
 
-    // Detalles de un libro comprado
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $book = auth()->user()->purchasedBooks()->findOrFail($id);
+        $book = $request->user()->purchasedBooks()->findOrFail($id);
         return $book;
     }
 
-    public function read($id)
-{
-    // El usuario solo puede leer libros que compró
-    $book = auth()->user()->purchasedBooks()->findOrFail($id);
+    public function read(Request $request, $id)
+    {
+        $book = $request->user()->purchasedBooks()->findOrFail($id);
 
-    if (!$book->file_path) {
-        return response()->json(['error' => 'Book content not found'], 404);
+        if (!$book->file_path) {
+            return response()->json(['error' => 'Book content not found'], 404);
+        }
+
+        $file = storage_path("app/books/{$book->file_path}");
+
+        if (!file_exists($file)) {
+            return response()->json(['error' => 'File missing on server'], 404);
+        }
+
+        return response()->file($file);
     }
-
-    $file = storage_path("app/books/{$book->file_path}");
-
-    if (!file_exists($file)) {
-        return response()->json(['error' => 'File missing on server'], 404);
-    }
-
-    return response()->file($file);
-}
-
 }

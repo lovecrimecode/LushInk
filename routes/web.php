@@ -31,7 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/library', [LibraryController::class, 'index']);
     Route::get('/library/{id}', [LibraryController::class, 'show']);
     Route::get('/library/{id}/read', [LibraryController::class, 'read']);
-});
+});s
 
 // API externa (OpenLibrary)
 Route::get('/search', [BookApiController::class, 'search']);
