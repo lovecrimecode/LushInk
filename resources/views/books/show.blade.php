@@ -6,7 +6,7 @@
     <p class="text-gray-400 mb-6">{{ $book->author }}</p>
 
     <div class="prose prose-invert">
-        {!! nl2br(e($book->content)) !!}
+        {!! nl2br(e($book->description)) !!}
     </div>
 </div>
 @endsection

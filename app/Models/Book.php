@@ -6,5 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Book extends Model
 {
-    //
+    public function buyers()
+    {
+        return $this->belongsToMany(User::class);
+    }
+
 }

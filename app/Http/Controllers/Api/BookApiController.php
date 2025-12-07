@@ -4,47 +4,27 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Book;
+use App\Services\BookApiService;
 
 class BookApiController extends Controller
 {
-    public function index() {
-        return Book::select('id, title, author, cover, description')->get();
+    protected BookApiService $api;
+
+    public function __construct(BookApiService $api)
+    {
+        $this->api = $api;
     }
 
-    public function show(Book $book) {
-        return $book;
+    // Buscar libros por query
+    public function search(Request $request)
+    {
+        $query = $request->input('q', '');
+        return $this->api->search($query);
     }
 
-    public function search (Request $request) {
-        $query = urlemcode($request->input('q'));
-
-        $response = Http::get(("https://openlibrary.org/search.json?q={$query}");
-
-        return $responde->json()['docs'] ?? [];
-    }
-
-    public function details($workId) {
-        $response = Http::get("https://openlibrary.org/works/{$workId}.json");
-
-        return $response->json() ?? [];
-    }
-
-    public function read($editionId) {
-        $response = Http::get("https://openlibrary.org/books/{$editionId}.json");
-
-        if (isset($edition['formats']['text/html'])) {
-            $htmlUrl = $edition['formats']['text/html'];
-            $response = Http::get($htmlUrl);
-            return $response->body();
-        }
-
-        if (isset($edition['formats']['text/plain'])) {
-            $htmlUrl = $edition['formats']['text/plain'];
-            $response = Http::get($htmlUrl);
-            return $response->body();
-        }
-
-        return "Content not available in reading format.";
+    // Ver detalles generales del libro
+    public function details(string $id)
+    {
+        return $this->api->details($id);
     }
 }

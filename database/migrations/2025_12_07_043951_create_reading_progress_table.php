@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('books', function (Blueprint $table) {
+        Schema::create('reading_progress', function (Blueprint $table) {
             $table->id();
-            $table->string('api_id')->unique();
-            $table->string('title');
-            $table->string('author');
-            $table->string('cover')->nullable();
-            $table->text('description')->nullable();
-            $table->string('file_path')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('book_id')->constrained()->onDelete('cascade');
+            $table->integer('position')->default(0); // página o porcentaje
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('books');
+        Schema::dropIfExists('reading_progress');
     }
 };
