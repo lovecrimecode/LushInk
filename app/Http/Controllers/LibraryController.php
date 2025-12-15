@@ -20,6 +20,7 @@ class LibraryController extends Controller
 
     public function read(Request $request, $id)
     {
+        // El usuario solo puede leer libros que compró
         $book = $request->user()->purchasedBooks()->findOrFail($id);
 
         if (!$book->file_path) {
@@ -34,4 +35,5 @@ class LibraryController extends Controller
 
         return response()->file($file);
     }
+
 }

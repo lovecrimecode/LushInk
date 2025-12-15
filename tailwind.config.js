@@ -11,11 +11,17 @@ export default {
 
     theme: {
         extend: {
+            colors: {
+                dark: "#0A0A0C",
+                wine: "#7A1531",
+                wineLight: "#B53058",
+                paper: "#1A1A1D",
+            },
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter', 'sans-serif'],
             },
         },
     },
-
+    
     plugins: [forms],
 };
