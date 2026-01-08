@@ -1,16 +1,14 @@
 <?php
 
 use App\Http\Controllers\PageController;
-
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BookController;
-use App\Http\Controllers\Api\ApiBookController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\LibraryController;
 use App\Models\Book;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [PageController::class, 'home'])->name('home');
+Route::get('/', [PageController::class, 'home']);
 
 
 Route::get('/dashboard', function () {
@@ -24,17 +22,18 @@ Route::middleware('auth')->group(function () {
 });
 
 // API interna (requiere login)
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/library', [LibraryController::class, 'index'])->name('index');
+Route::middleware('auth')->group(function () {
+    Route::get('/library', [LibraryController::class, 'index'])->name('library');
+    Route::get('/read/{book}', [LibraryController::class, 'read'])->name('read');
     //Route::get('/library/{id}', [LibraryController::class, 'show'])->name('library.show');
-    Route::get('/library/{id}/read', [LibraryController::class, 'read'])->name('read');
+    //Route::get('/library/{id}/read', [LibraryController::class, 'read'])->name('read');
 });
 
 // API externa (OpenLibrary)
-Route::get('/search', [ApiBookController::class, 'search'])->name('search');
-Route::get('/details/{id}', [ApiBookController::class, 'details'])->name('details');
+Route::get('/book/search', [PageController::class, 'search'])->name('book.search');
+Route::get('/book/{id}', [PageController::class, 'details'])->name('book.details');
 
 // Comprar libro
-Route::post('/purchase', [PurchaseController::class, 'purchase'])->name('purchase');
+//Route::post('/purchase', [PurchaseController::class, 'purchase'])->name('purchase');
 
 require __DIR__.'/auth.php';

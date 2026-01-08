@@ -16,7 +16,7 @@ class PageController extends Controller
     {
         $q = $request->input('q');
 
-        $books = Http::get('http://127.0.0.1:8000/api/search', [
+        $books = Http::get('http://127.0.0.1:8000/book/search', [
             'q' => $q
         ])->json();
 
@@ -25,7 +25,7 @@ class PageController extends Controller
 
     public function details($id)
     {
-        $book = Http::get("http://127.0.0.1:8000/api/details/{$id}")->json();
+        $book = Http::get("http://127.0.0.1:8000/book/{$id}")->json();
 
         return view('details', compact('book'));
     }
@@ -34,7 +34,7 @@ class PageController extends Controller
     {
         $books = Http::withHeaders([
             'Authorization' => 'Bearer ' . csrf_token()
-        ])->get('http://127.0.0.1:8000/api/library')->json();
+        ])->get('http://127.0.0.1:8000/library')->json();
 
         return view('library', compact('books'));
     }

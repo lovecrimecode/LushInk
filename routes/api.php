@@ -15,12 +15,9 @@ use App\Http\Controllers\Api\ApiBookController;
 |
 */
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/books', [ApiBookController::class, 'index']);
-    Route::get('/books/{book}', [ApiBookController::class, 'show']);
-});
+Route::get('/books', [ApiBookController::class, 'index']);
+Route::get('/books/{book}', [ApiBookController::class, 'show']);
 
+Route::get('/search', [ApiBookController::class, 'search']);
+Route::get('/details/{id}', [ApiBookController::class, 'details']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
