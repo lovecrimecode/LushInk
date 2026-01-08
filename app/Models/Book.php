@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Book extends Model
@@ -15,10 +14,13 @@ class Book extends Model
         'cover_url',
         'description',
         'published_year',
+        'source',
+        'source_id',
+        'file_path',
     ];
 
     public function buyers()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'purchases')->withTimestamps();
     }
 }

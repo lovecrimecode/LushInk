@@ -6,61 +6,75 @@ use Illuminate\Support\Facades\Http;
 
 class BookApiService
 {
-    private string $baseUrl = "https://openlibrary.org";
+    private string $baseUrl;
 
-    /**
-     * Buscar libros por título, autor, palabra clave.
-     */
+    public function __construct()
+    {
+        $this->baseUrl = rtrim(config('services.openlibrary.base_url', 'https://openlibrary.org'), '/');
+    }
+
     public function search(string $query): array
     {
-        $query = urlencode($query);
+        $query = trim($query);
+        if ($query === '') return [];
 
-        $response = Http::get("{$this->baseUrl}/search.json?q={$query}");
+        $res = Http::timeout(8)
+            ->retry(2, 200)
+            ->get("{$this->baseUrl}/search.json", [
+                'q' => $query,
+            ]);
 
-        return $response->json()['docs'] ?? [];
+        if (!$res->successful()) return [];
+
+        $docs = $res->json('docs', []);
+
+        // Normaliza para tu UI
+        return collect($docs)->take(20)->map(function ($d) {
+            $workKey = $d['key'] ?? '';
+            $workId = str_starts_with($workKey, '/works/')
+                ? substr($workKey, 7)
+                : $workKey;
+
+            $coverId = $d['cover_i'] ?? null;
+            $coverUrl = $coverId ? "https://covers.openlibrary.org/b/id/{$coverId}-M.jpg" : null;
+
+            return [
+                'work_id' => $workId,
+                'title' => $d['title'] ?? 'Untitled',
+                'author' => $d['author_name'][0] ?? null,
+                'published_year' => $d['first_publish_year'] ?? null,
+                'cover_url' => $coverUrl,
+            ];
+        })->values()->all();
     }
 
-    /**
-     * Obtener detalles de un libro usando el Work ID.
-     */
     public function details(string $workId): array
     {
-        $response = Http::get("{$this->baseUrl}/works/{$workId}.json");
+        $workId = trim($workId);
+        if ($workId === '') return [];
 
-        return $response->json() ?? [];
+        $res = Http::timeout(8)
+            ->retry(2, 200)
+            ->get("{$this->baseUrl}/works/{$workId}.json");
+
+        if (!$res->successful()) return [];
+
+        $work = $res->json();
+
+        $desc = $work['description'] ?? null;
+        $description = is_array($desc) ? ($desc['value'] ?? null) : $desc;
+
+        $covers = $work['covers'] ?? [];
+        $coverUrl = !empty($covers)
+            ? "https://covers.openlibrary.org/b/id/{$covers[0]}-L.jpg"
+            : null;
+
+        return [
+            'work_id' => $workId,
+            'title' => $work['title'] ?? null,
+            'description' => $description,
+            'cover_url' => $coverUrl,
+            'subjects' => array_slice($work['subjects'] ?? [], 0, 10),
+        ];
     }
-
-    // /**
-    //  * Obtener la edición de un libro para encontrar formatos.
-    //  */
-    // public function edition(string $editionId): array
-    // {
-    //     $response = Http::get("{$this->baseUrl}/books/{$editionId}.json");
-
-    //     return $response->json() ?? [];
-    // }
-
-    // /**
-    //  * Devolver contenido legible (si existe).
-    //  */
-    // public function getReadableContent(string $editionId): string
-    // {
-    //     $edition = $this->edition($editionId);
-
-    //     if (!$edition) return "Edition not found.";
-
-    //     // HTML
-    //     if (isset($edition['formats']['text/html'])) {
-    //         $html = Http::get($edition['formats']['text/html']);
-    //         return $html->body();
-    //     }
-
-    //     // Plain text
-    //     if (isset($edition['formats']['text/plain'])) {
-    //         $text = Http::get($edition['formats']['text/plain']);
-    //         return nl2br($text->body());
-    //     }
-
-    //     return "Readable content not available for this edition.";
-    // }
 }

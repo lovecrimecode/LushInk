@@ -8,23 +8,18 @@ use App\Services\BookApiService;
 
 class ApiBookController extends Controller
 {
-    protected BookApiService $api;
-
-    public function __construct(BookApiService $api)
-    {
-        $this->api = $api;
-    }
+    public function __construct(
+        private readonly BookApiService $api) {}
 
     public function search(Request $request)
     {
-        $query = $request->input('q', '');
-
-        return $this->api->search($query);
+        $q = (string) $request->query('q', '');
+        return response()->json($this->api->search($q));
     }
 
     public function details(string $id)
     {
-        return $this->api->details($id);
+        return response()->json($this->api->details($id));
     }
 
 }

@@ -4,43 +4,35 @@
 <div id="details" class="max-w-3xl mx-auto glass"></div>
 
 <script>
-const id = new URLSearchParams(window.location.search).get('id');
+const id = @json($id);
 
-fetch(`/api/details/${id}`)
-    .then(res => res.json())
-    .then(book => {
-        document.getElementById('details').innerHTML = `
-            <h1 class="text-3xl text-wine mb-4">${book.title}</h1>
-            <p class="text-gray-400 mb-6">
-                ${book.description?.value ?? book.description ?? 'No description available'}
-            </p>
+fetch(`/api/details/${encodeURIComponent(id)}`)
+  .then(res => res.json())
+  .then(book => {
+    const title = book.title ?? 'Untitled';
+    const description = book.description ?? 'No description available';
 
-            @auth
-            <button onclick="purchase('${book.title}')"
-                class="bg-wine px-6 py-2 rounded text-white hover:bg-wineLight">
-                Purchase
-            </button>
-            @else
-            <p class="text-gray-500">Login to purchase this book</p>
-            @endauth
-        `;
-    });
+    document.getElementById('details').innerHTML = `
+      <h1 class="text-3xl text-wine mb-4">${title}</h1>
+      ${book.cover_url ? `<img class="rounded mb-4" src="${book.cover_url}" />` : ''}
+      <p class="text-gray-400 mb-6">${description}</p>
 
-function purchase(title) {
-    fetch('/api/purchase', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-            api_id: id,
-            title: title
-        })
-    }).then(() => {
-        alert('Book added to your library');
-        window.location.href = '/library';
-    });
-}
+      @auth
+        <form method="POST" action="/purchase">
+          @csrf
+          <input type="hidden" name="work_id" value="${id}">
+          <input type="hidden" name="title" value="${title}">
+          <button class="bg-wine px-6 py-2 rounded text-white hover:bg-wineLight">
+            Purchase
+          </button>
+        </form>
+      @else
+        <p class="text-gray-500">Login to purchase this book</p>
+      @endauth
+    `;
+  })
+  .catch(() => {
+    document.getElementById('details').innerHTML = '<p>Error loading book details.</p>';
+  });
 </script>
 @endsection

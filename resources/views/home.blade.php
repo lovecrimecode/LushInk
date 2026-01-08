@@ -5,7 +5,7 @@
     <h1 class="text-4xl font-bold text-wine mb-6">LushInk</h1>
     <p class="text-gray-400 mb-6">Search and collect your books</p>
 
-    <form action="/search" method="GET">
+    <form action="/book/search" method="GET">
         <input
             type="text"
             name="q"

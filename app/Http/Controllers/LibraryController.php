@@ -2,38 +2,41 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use Illuminate\Http\Request;
-//use App\Http\Controllers\Controller;
 
 class LibraryController extends Controller
 {
     public function index(Request $request)
     {
-        return $request->user()->purchasedBooks()->get();
+        return response()->json(
+            $request->user()->purchasedBooks()->latest()->get()
+        );
     }
 
-    public function show(Request $request, $id)
+    public function show(Request $request, Book $book)
     {
-        $book = $request->user()->purchasedBooks()->findOrFail($id);
-        return $book;
+        $owns = $request->user()->purchasedBooks()->whereKey($book->id)->exists();
+        abort_unless($owns, 403);
+
+        return response()->json($book);
     }
 
-    public function read(Request $request, $id)
+    public function read(Request $request, Book $book)
     {
-        // El usuario solo puede leer libros que compró
-        $book = $request->user()->purchasedBooks()->findOrFail($id);
+        $owns = $request->user()->purchasedBooks()->whereKey($book->id)->exists();
+        abort_unless($owns, 403, 'No tienes acceso a este libro.');
 
         if (!$book->file_path) {
-            return response()->json(['error' => 'Book content not found'], 404);
+            return response()->json(['error' => 'Contenido no disponible'], 404);
         }
 
-        $file = storage_path("app/books/{$book->file_path}");
+        $file = storage_path("app/{$book->file_path}");
 
-        if (!file_exists($file)) {
-            return response()->json(['error' => 'File missing on server'], 404);
+        if (!is_file($file)) {
+            return response()->json(['error' => 'Archivo no encontrado en el servidor'], 404);
         }
 
         return response()->file($file);
     }
-
 }

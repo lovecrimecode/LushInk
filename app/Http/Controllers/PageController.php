@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class PageController extends Controller
 {
@@ -14,28 +13,20 @@ class PageController extends Controller
 
     public function search(Request $request)
     {
-        $q = $request->input('q');
-
-        $books = Http::get('http://127.0.0.1:8000/book/search', [
-            'q' => $q
-        ])->json();
-
-        return view('search', compact('books', 'q'));
+        // Solo devuelve la vista 
+        $q = (string) $request->query('q', '');
+        return view('search', compact('q'));
     }
 
-    public function details($id)
+    public function details(string $id)
     {
-        $book = Http::get("http://127.0.0.1:8000/book/{$id}")->json();
-
-        return view('details', compact('book'));
+        // Solo devuelve la vista con el id
+        return view('details', ['id' => $id]);
     }
 
-    public function library(Request $request)
+    public function library()
     {
-        $books = Http::withHeaders([
-            'Authorization' => 'Bearer ' . csrf_token()
-        ])->get('http://127.0.0.1:8000/library')->json();
-
-        return view('library', compact('books'));
+        // Vista (los datos se cargan con fetch a tu API)
+        return view('library');
     }
 }

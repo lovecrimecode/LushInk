@@ -2,42 +2,39 @@
 
 @section('content')
 <h2 class="text-2xl text-wine mb-6">
-    Results for "{{ request('q') }}"
+    Results for "{{ $q }}"
 </h2>
 
 <div id="results" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6"></div>
 
 <script>
-fetch(`/api/search?q={{ request('q') }}`)
-    .then(res => res.json())
-    .then(data => {
-        const container = document.getElementById('results');
+const q = @json($q);
 
-        if (!data.length) {
-            container.innerHTML = '<p>No results found.</p>';
-            return;
-        }
+fetch(`/api/search?q=${encodeURIComponent(q)}`)
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById('results');
 
-        data.slice(0, 16).forEach(book => {
-            const cover = book.cover_i
-                ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
-                : '';
+    if (!Array.isArray(data) || data.length === 0) {
+      container.innerHTML = '<p>No results found.</p>';
+      return;
+    }
 
-            const workId = book.key.replace('/works/', '');
+    container.innerHTML = data.slice(0, 16).map(book => `
+      <div class="glass">
+        ${book.cover_url ? `<img src="${book.cover_url}" class="rounded mb-4" />` : ''}
+        <h3 class="font-bold">${book.title ?? ''}</h3>
+        <p class="text-sm text-gray-400">${book.author ?? ''}</p>
 
-            container.innerHTML += `
-                <div class="glass">
-                    ${cover ? `<img src="${cover}" class="rounded mb-4">` : ''}
-                    <h3 class="font-bold">${book.title}</h3>
-                    <p class="text-sm text-gray-400">${book.author_name?.[0] ?? ''}</p>
-
-                    <a href="/book?id=${workId}"
-                       class="inline-block mt-4 text-wine hover:underline">
-                        View details
-                    </a>
-                </div>
-            `;
-        });
-    });
+        <a href="/book/${book.work_id}"
+           class="inline-block mt-4 text-wine hover:underline">
+          View details
+        </a>
+      </div>
+    `).join('');
+  })
+  .catch(() => {
+    document.getElementById('results').innerHTML = '<p>Error loading results.</p>';
+  });
 </script>
 @endsection
