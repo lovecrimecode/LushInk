@@ -7,21 +7,6 @@ use Illuminate\Http\Request;
 
 class LibraryController extends Controller
 {
-    public function index(Request $request)
-    {
-        return response()->json(
-            $request->user()->purchasedBooks()->latest()->get()
-        );
-    }
-
-    public function show(Request $request, Book $book)
-    {
-        $owns = $request->user()->purchasedBooks()->whereKey($book->id)->exists();
-        abort_unless($owns, 403);
-
-        return response()->json($book);
-    }
-
     public function read(Request $request, Book $book)
     {
         $owns = $request->user()->purchasedBooks()->whereKey($book->id)->exists();
@@ -32,7 +17,6 @@ class LibraryController extends Controller
         }
 
         $file = storage_path("app/{$book->file_path}");
-
         if (!is_file($file)) {
             return response()->json(['error' => 'Archivo no encontrado en el servidor'], 404);
         }
