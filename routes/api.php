@@ -6,8 +6,6 @@ use App\Http\Controllers\Api\ApiBookController;
 use App\Http\Controllers\Api\ApiLibraryController;
 
 Route::get('/books', [ApiBookController::class, 'index']);
-Route::get('/books/{book}', [ApiBookController::class, 'show']);
-
 Route::get('/search', [ApiBookController::class, 'search']);
 Route::get('/details/{id}', [ApiBookController::class, 'details']);
 

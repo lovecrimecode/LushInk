@@ -7,10 +7,17 @@ use Illuminate\Http\Request;
 use App\Services\BookApiService;
 
 class ApiBookController extends Controller
+//Controlador API para manejar las solicitudes relacionadas con libros
 {
     public function __construct(
         private readonly BookApiService $api) {}
 
+    public function index()
+    {
+        return response()->json($this->api->index());
+    }
+    
+    
     public function search(Request $request)
     {
         $q = (string) $request->query('q', '');

@@ -11,6 +11,12 @@ class PageController extends Controller
         return view('home');
     }
 
+    public function index()
+    {
+        // Solo devuelve la vista
+        return view('book.index');
+    }
+
     public function search(Request $request)
     {
         // Solo devuelve la vista 
