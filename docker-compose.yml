@@ -23,14 +23,14 @@ services:
       - app
 
   vite:
-    image: node:20-alpine
+    image: node:20.19-alpine
     container_name: lushink_vite
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
     ports:
       - "5173:5173"
-    command: sh -c "npm install && npm run dev -- --host"
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
 
   db:
     image: mysql:8.0
