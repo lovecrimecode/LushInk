@@ -23,9 +23,9 @@ class ReadingProgress extends Model
         return response()->json($this->api->search($q));
     }
 
-    public function details(string $id)
+    public function show(string $id)
     {
-        return response()->json($this->api->details($id));
+        return response()->json($this->api->show($id));
     }
 
 }

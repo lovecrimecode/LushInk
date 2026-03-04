@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\ApiLibraryController;
 
 Route::get('/books', [ApiBookController::class, 'index']);
 Route::get('/search', [ApiBookController::class, 'search']);
-Route::get('/details/{id}', [ApiBookController::class, 'details']);
+Route::get('/show/{id}', [ApiBookController::class, 'show']);
 
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/library', [ApiLibraryController::class, 'index']);

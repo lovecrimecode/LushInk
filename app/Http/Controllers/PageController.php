@@ -24,10 +24,10 @@ class PageController extends Controller
         return view('search', compact('q'));
     }
 
-    public function details(string $id)
+    public function show(string $id)
     {
         // Solo devuelve la vista con el id
-        return view('details', ['id' => $id]);
+        return view('show', ['id' => $id]);
     }
 
     public function library()

@@ -85,7 +85,7 @@ class BookApiService
         })->values()->all();
     }
 
-    public function details(string $workId): array
+    public function show(string $workId): array
     {
         $workId = trim($workId);
         if ($workId === '') return [];

@@ -1,19 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
-<div id="details" class="max-w-4xl mx-auto"></div>
+<div id="show" class="max-w-4xl mx-auto"></div>
 
 <script>
 const id = @json($id);
 
-fetch(`/api/details/${encodeURIComponent(id)}`)
+fetch(`/api/show/${encodeURIComponent(id)}`)
   .then(r => r.json())
   .then(book => {
     const title = book.title ?? 'Untitled';
     const description = book.description ?? 'No descripcion disponible';
     const cover = book.cover_url ?? null;
 
-    document.getElementById('details').innerHTML = `
+    document.getElementById('show').innerHTML = `
       <div class="card p-6 md:p-8">
         <div class="grid md:grid-cols-12 gap-6">
           <div class="md:col-span-4">
@@ -62,7 +62,7 @@ fetch(`/api/details/${encodeURIComponent(id)}`)
     `;
   })
   .catch(() => {
-    document.getElementById('details').innerHTML =
+    document.getElementById('show').innerHTML =
       `<div class="card p-6 text-zinc-400">Error cargando los datos del libro.</div>`;
   });
 </script>

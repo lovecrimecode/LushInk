@@ -28,9 +28,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/purchase', [PurchaseController::class, 'purchase'])->name('purchase');
 });
 
-Route::get('/book', [PageController::class, 'index'])->name('book.index');
+
 Route::get('/book/search', [PageController::class, 'search'])->name('book.search');
-Route::get('/book/{id}', [PageController::class, 'details'])->name('book.details');
+Route::get('/book/{id}', [PageController::class, 'show'])->name('book.show');
+Route::get('/book/index', [PageController::class, 'index'])->name('book.index');
 
 
 require __DIR__.'/auth.php';

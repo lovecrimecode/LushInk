@@ -17,6 +17,8 @@
     </form>
   </div>
 
+  <--! AGREGAR IF PARA LO DE ABAJO>
+
   <div class="mt-6">
     <h2 class="text-xl font-semibold">Resultados</h2>
     <p class="text-zinc-400">
