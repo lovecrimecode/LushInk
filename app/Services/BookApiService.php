@@ -53,7 +53,13 @@ class BookApiService
     public function search(string $query): array
     {
         $query = trim($query);
-        if ($query === '') return [];
+        if ($query === '') {
+            return collect($this->index())
+                ->shuffle()
+                ->take(20)
+                ->values()
+                ->all();
+        }
 
         $res = Http::timeout(15)
             ->retry(2, 200)

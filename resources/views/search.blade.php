@@ -17,13 +17,15 @@
     </form>
   </div>
 
-  <--! AGREGAR IF PARA LO DE ABAJO>
-
   <div class="mt-6">
-    <h2 class="text-xl font-semibold">Resultados</h2>
-    <p class="text-zinc-400">
-      Búsqueda: <span class="text-red-300">"{{ $q }}"</span>
-    </p>
+    <h2 class="text-xl font-semibold">{{ $q !== '' ? 'Resultados' : 'Libros recomendados' }}</h2>
+    @if($q !== '')
+      <p class="text-zinc-400">
+        Búsqueda: <span class="text-red-300">"{{ $q }}"</span>
+      </p>
+    @else
+      <p class="text-zinc-400">No escribiste una búsqueda. Te mostramos libros aleatorios del índice.</p>
+    @endif
   </div>
 
   <div id="results" class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
@@ -39,7 +41,7 @@ fetch(`/api/search?q=${encodeURIComponent(q)}`)
     const el = document.getElementById('results');
 
     if (!Array.isArray(data) || data.length === 0) {
-      el.innerHTML = `<div class="card p-6 text-zinc-400">No se encontraron resultados.</div>`;
+      el.innerHTML = `<div class="card p-6 text-zinc-400">${q ? 'No se encontraron resultados.' : 'No pudimos cargar recomendaciones ahora.'}</div>`;
       return;
     }
 
