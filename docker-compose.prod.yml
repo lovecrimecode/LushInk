@@ -1,0 +1,35 @@
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: lushink_prod_app
+    env_file:
+      - .env.production
+    depends_on:
+      - db
+
+  web:
+    image: nginx:1.27-alpine
+    container_name: lushink_prod_web
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+
+  db:
+    image: mysql:8.0
+    container_name: lushink_prod_db
+    environment:
+      MYSQL_DATABASE: lushink
+      MYSQL_USER: lushink
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - dbdata:/var/lib/mysql
+
+volumes:
+  dbdata:
