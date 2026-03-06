@@ -12,9 +12,16 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-        public function purchasedBooks()
+    public function purchasedBooks()
     {
-        return $this->belongsToMany(Book::class, 'book_user');
+        return $this->belongsToMany(Book::class, 'purchases')
+            ->withPivot('price')
+            ->withTimestamps();
+    }
+
+    public function readingProgress()
+    {
+        return $this->hasMany(ReadingProgress::class);
     }
 
     /**

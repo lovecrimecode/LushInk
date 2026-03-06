@@ -10,25 +10,42 @@ class PurchaseController extends Controller
     public function purchase(Request $request)
     {
         $validated = $request->validate([
-            'api_id' => 'required',
-            'title' => 'required',
-            'author' => 'nullable',
-            'cover_url' => 'nullable',
-            'description' => 'nullable'
+            'api_id' => ['required', 'string', 'max:255'],
+            'title' => ['required', 'string', 'max:255'],
+            'author' => ['nullable', 'string', 'max:255'],
+            'cover' => ['nullable', 'string'],
+            'description' => ['nullable', 'string'],
+            'price' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        // Verificar si ya existe localmente
         $book = Book::firstOrCreate(
             ['api_id' => $validated['api_id']],
-            $validated
+            [
+                'title' => $validated['title'],
+                'author' => $validated['author'] ?? 'Autor desconocido',
+                'cover' => $validated['cover'] ?? null,
+                'description' => $validated['description'] ?? null,
+            ],
         );
 
-        // Asociar al usuario
-        auth()->user()->purchasedBooks()->syncWithoutDetaching([$book->id]);
+        if ($book->wasRecentlyCreated === false) {
+            $book->update([
+                'title' => $validated['title'],
+                'author' => $validated['author'] ?? $book->author,
+                'cover' => $validated['cover'] ?? $book->cover,
+                'description' => $validated['description'] ?? $book->description,
+            ]);
+        }
+
+        $price = $validated['price'] ?? 0;
+
+        $request->user()->purchasedBooks()->syncWithoutDetaching([
+            $book->id => ['price' => $price],
+        ]);
 
         return response()->json([
-            'message' => 'Book purchased successfully',
-            'book' => $book
+            'message' => 'Libro agregado a tu biblioteca.',
+            'book' => $book,
         ]);
     }
 }

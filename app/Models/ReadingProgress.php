@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 
 class ReadingProgress extends Model
 {
     use HasFactory;
+
+    protected $table = 'reading_progress';
+
     protected $fillable = [
         'user_id',
         'book_id',
@@ -17,15 +19,13 @@ class ReadingProgress extends Model
         'percentage_completed',
     ];
 
-    public function search(Request $request)
+    public function user()
     {
-        $q = (string) $request->query('q', '');
-        return response()->json($this->api->search($q));
+        return $this->belongsTo(User::class);
     }
 
-    public function show(string $id)
+    public function book()
     {
-        return response()->json($this->api->show($id));
+        return $this->belongsTo(Book::class);
     }
-
 }

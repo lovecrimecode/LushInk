@@ -2,65 +2,46 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use App\Models\ReadingProgress;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class ReadingProgressController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function update(Request $request, Book $book)
     {
-        //
-    }
+        $user = $request->user();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        $owns = $user->purchasedBooks()->whereKey($book->id)->exists();
+        abort_unless($owns, 403, 'No tienes acceso a este libro.');
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $validated = $request->validate([
+            'current_page' => ['nullable', 'integer', 'min:0'],
+            'total_pages' => ['nullable', 'integer', 'min:1'],
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(ReadingProgress $readingProgress)
-    {
-        //
-    }
+        $currentPage = (int) ($validated['current_page'] ?? 0);
+        $totalPages = (int) ($validated['total_pages'] ?? 0);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ReadingProgress $readingProgress)
-    {
-        //
-    }
+        $percentage = $totalPages > 0
+            ? min(100, round(($currentPage / $totalPages) * 100, 2))
+            : 0;
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, ReadingProgress $readingProgress)
-    {
-        //
-    }
+        $progress = ReadingProgress::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'book_id' => $book->id,
+            ],
+            [
+                'current_page' => $currentPage,
+                'total_pages' => $totalPages,
+                'percentage_completed' => $percentage,
+            ],
+        );
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(ReadingProgress $readingProgress)
-    {
-        //
+        return response()->json([
+            'message' => 'Progreso actualizado',
+            'progress' => $progress,
+        ]);
     }
 }

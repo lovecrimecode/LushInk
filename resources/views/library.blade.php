@@ -10,7 +10,41 @@
 <div id="lib" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
 
 <script>
-fetch('/api/library', { credentials: 'same-origin',
+const csrf = @json(csrf_token());
+
+const saveProgress = async (bookId) => {
+  const current = Number(document.getElementById(`current-${bookId}`)?.value || 0);
+  const total = Number(document.getElementById(`total-${bookId}`)?.value || 0);
+  const messageEl = document.getElementById(`progress-msg-${bookId}`);
+
+  messageEl.textContent = 'Guardando...';
+
+  try {
+    const res = await fetch(`/books/${bookId}/progress`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': csrf,
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify({ current_page: current, total_pages: total }),
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json();
+    const percent = data.progress?.percentage_completed ?? 0;
+
+    document.getElementById(`percent-${bookId}`).textContent = `${percent}%`;
+    messageEl.textContent = '✅ Progreso guardado';
+  } catch (err) {
+    messageEl.textContent = '❌ Error al guardar';
+  }
+};
+
+fetch('/api/library', {
+  credentials: 'same-origin',
   headers: { 'Accept': 'application/json' }
 })
   .then(r => r.json())
@@ -32,13 +66,23 @@ fetch('/api/library', { credentials: 'same-origin',
           </div>
           <div class="min-w-0 flex-1">
             <h3 class="font-semibold text-zinc-100 truncate">${b.title ?? 'Untitled'}</h3>
-            <p class="text-sm text-zinc-400 truncate">${b.authors ?? ''}</p>
+            <p class="text-sm text-zinc-400 truncate">${b.author ?? 'Autor desconocido'}</p>
+            <div class="mt-3 text-xs text-zinc-400">
+              Progreso: <span id="percent-${b.id}">${b.progress?.percentage_completed ?? 0}%</span>
+            </div>
+            <div class="mt-2 grid grid-cols-2 gap-2">
+              <input id="current-${b.id}" class="input text-sm" type="number" min="0" value="${b.progress?.current_page ?? 0}" placeholder="Página actual" />
+              <input id="total-${b.id}" class="input text-sm" type="number" min="1" value="${b.progress?.total_pages ?? 0}" placeholder="Total de páginas" />
+            </div>
 
-            <div class="mt-4 flex flex-wrap gap-2">
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button class="btn-ghost" type="button" onclick="saveProgress(${b.id})">Guardar progreso</button>
               ${b.file_path
                 ? `<a class="btn-wine" href="/read/${b.id}">📖 Leer</a>`
                 : `<span class="badge">Contenido no disponible</span>`}
             </div>
+
+            <p id="progress-msg-${b.id}" class="mt-2 text-xs text-zinc-500"></p>
           </div>
         </div>
       </div>

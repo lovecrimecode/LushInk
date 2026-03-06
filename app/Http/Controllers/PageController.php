@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class PageController extends Controller
@@ -11,28 +12,25 @@ class PageController extends Controller
         return view('home');
     }
 
-    public function index()
+    public function index(): RedirectResponse
     {
-        // Solo devuelve la vista
-        return view('book.index');
+        return redirect()->route('book.search');
     }
 
     public function search(Request $request)
     {
-        // Solo devuelve la vista 
         $q = (string) $request->query('q', '');
+
         return view('search', compact('q'));
     }
 
     public function show(string $id)
     {
-        // Solo devuelve la vista con el id
-        return view('show', ['id' => $id]);
+        return view('details', ['id' => $id]);
     }
 
     public function library()
     {
-        // Vista (los datos se cargan con fetch a tu API)
         return view('library');
     }
 }
